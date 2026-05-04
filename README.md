@@ -10,7 +10,7 @@ Sentiment classification of IMDb movie reviews using Machine Learning.
 
 ## Dataset
 
-IMDb movie reviews (50,000 labeled samples: 25k train / 25k test)
+[IMDb movie reviews dataset](https://ai.stanford.edu/~amaas/data/sentiment/) (50,000 labeled samples: 25k train / 25k test)
 
 ## Installation
 
