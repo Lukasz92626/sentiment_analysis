@@ -1,0 +1,49 @@
+# PyCharm / IDE
+.idea/
+*.iml
+*.iws
+.idea/workspace.xml
+
+# Wirtualne środowisko
+venv/
+env/
+.venv/
+ENV/
+
+# Pliki z danymi (TWOJE DANE - najważniejsze!)
+data/
+datasets/
+*.csv
+*.xlsx
+*.json
+*.db
+*.sqlite
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Logi i tymczasowe
+*.log
+*.tmp
+*.temp
+
+# Systemowe
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Zmienne środowiskowe
+.env
+.env.local
+.env.*.local
+
+# Modele (często duże pliki)
+*.pkl
+*.joblib
+*.h5
+*.pth
+*.pt
+*.onnx
