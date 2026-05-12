@@ -4,3 +4,8 @@ scikit-learn
 nltk
 matplotlib
 seaborn
+
+tensorflow
+torch
+transformers
+tqdm
