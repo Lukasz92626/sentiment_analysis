@@ -1,4 +1,5 @@
 import pickle
+import torch
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -17,11 +18,43 @@ from tensorflow.keras.layers import Embedding, LSTM, Dense
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+from transformers import BertTokenizer, BertForSequenceClassification
+from torch.utils.data import DataLoader, Dataset
+from torch.optim import AdamW
+
 from src.load_data import load_imdb_dataset
 from src.preprocessing import preprocess_text
 
+class IMDBDataset(Dataset):
+    def __init__(self, texts, labels, tokenizer, max_len=256):
+        self.texts = texts.tolist()
+        self.labels = labels.tolist()
+        self.tokenizer = tokenizer
+        self.max_len = max_len
+
+    def __len__(self):
+        return len(self.texts)
+
+    def __getitem__(self, idx):
+        encoding = self.tokenizer(
+            self.texts[idx],
+            truncation=True,
+            padding='max_length',
+            max_length=self.max_len,
+            return_tensors="pt"
+        )
+
+        return {
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            "labels": torch.tensor(self.labels[idx], dtype=torch.long)
+        }
+
 def train_model():
     """Funkcja trenująca modele klasyfikacji sentymentu"""
+    print("CUDA available:", torch.cuda.is_available())
+    print("Device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
+
     print("Loading dataset...")
     train_df = load_imdb_dataset("data/aclImdb/train")
     test_df = load_imdb_dataset("data/aclImdb/test")
@@ -146,7 +179,74 @@ def train_model():
 
     results["LSTM"] = lstm_acc
 
-    # BERT !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # BERT
+    print("\nTraining BERT...")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    tokenizer_bert = BertTokenizer.from_pretrained("bert-base-uncased")
+    model_bert = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)
+
+    model_bert.to(device)
+
+    train_dataset = IMDBDataset(train_df["review"], y_train, tokenizer_bert)
+    test_dataset = IMDBDataset(test_df["review"], y_test, tokenizer_bert)
+
+    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=8)
+
+    optimizer = AdamW(model_bert.parameters(), lr=2e-5)
+
+    # Training loop
+    model_bert.train()
+
+    for epoch in range(2):
+        print(f"Epoch {epoch + 1}")
+
+        for batch in train_loader:
+            optimizer.zero_grad()
+
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
+
+            outputs = model_bert(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+
+            loss = outputs.loss
+            loss.backward()
+            optimizer.step()
+
+    model_bert.eval()
+
+    predictions = []
+    true_labels = []
+
+    with torch.no_grad():
+        for batch in test_loader:
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            labels = batch["labels"].to(device)
+
+            outputs = model_bert(
+                input_ids=input_ids,
+                attention_mask=attention_mask
+            )
+
+            preds = torch.argmax(outputs.logits, dim=1)
+
+            predictions.extend(preds.cpu().numpy())
+            true_labels.extend(labels.cpu().numpy())
+
+    bert_acc = accuracy_score(true_labels, predictions)
+
+    print("BERT Accuracy:", bert_acc)
+    print(classification_report(true_labels, predictions))
+
+    results["BERT"] = bert_acc
 
     # Comparison
     print("\n=== Model Comparison ===")
@@ -164,8 +264,13 @@ def train_model():
         pickle.dump(nb_model, open("model.pkl", "wb"))
     elif best_model_name == "SVM":
         pickle.dump(svm_model, open("model.pkl", "wb"))
+    elif best_model_name == "LSTM":
+        lstm_model.save("lstm_model.h5")
+    elif best_model_name == "BERT":
+        model_bert.save_pretrained("bert_model")
+        tokenizer_bert.save_pretrained("bert_model")
     else:
-        print("Skipping LSTM save (use model.save() if needed)")
+        print("Unknown model selected")
 
     pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
 

@@ -126,7 +126,10 @@
       <workItem from="1777881752953" duration="2711000" />
       <workItem from="1777968822907" duration="41000" />
       <workItem from="1777968882179" duration="20000" />
-      <workItem from="1777969028383" duration="2473000" />
+      <workItem from="1777969028383" duration="3104000" />
+      <workItem from="1778230150419" duration="45000" />
+      <workItem from="1778230207620" duration="26000" />
+      <workItem from="1778573444569" duration="2392000" />
     </task>
     <servers />
   </component>
@@ -134,6 +137,6 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/sentiment_analysis$main.coverage" NAME="main Coverage Results" MODIFIED="1777970798415" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/sentiment_analysis$main.coverage" NAME="main Coverage Results" MODIFIED="1778574973866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
