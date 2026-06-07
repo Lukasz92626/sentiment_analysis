@@ -10,7 +10,7 @@ env/
 .venv/
 ENV/
 
-# Pliki z danymi (TWOJE DANE - najważniejsze!)
+# Pliki z danymi
 data/
 datasets/
 *.csv
@@ -18,6 +18,10 @@ datasets/
 *.json
 *.db
 *.sqlite
+
+# BERT i output
+bert_model/
+output/
 
 # Python cache
 __pycache__/
